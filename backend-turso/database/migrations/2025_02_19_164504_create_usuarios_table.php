@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('fecha_nacimiento');
             $table->string('telefono', 15)->nullable();
             $table->string('correo', 100)->unique();
-            $table->text('imagen_biometrica'); // Guardaremos la URL de la imagen
+            $table->binary('imagen_biometrica'); // Guardaremos la URL de la imagen
             $table->timestamp('fecha_registro')->useCurrent();
         });
     }
