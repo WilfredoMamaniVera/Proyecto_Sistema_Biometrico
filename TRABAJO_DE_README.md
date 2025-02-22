@@ -5,14 +5,18 @@ Este proyecto implementa un sistema biométrico facial, gestionado utilizando un
 ## Tablero Kanban
 
 ### **Por Hacer**
-- Conectar el frontend y el backend
+- Verificar la conexion del
+frontend y backend esten bien
+y que no haiga ningun error
 
 ### **En Progreso**
-*(Actualmente, no hay tareas en progreso)*
+- Hacer las conexiones y verificar 
+que los formularios en el 
+reacts obtenga la imagen y consuma la api
 
 ### **Hecho**
 - API completada
 - Backend completado
 - Frontend completado
-- Subido el frontend a un dominio
+- Se hizo la prueba q consumio la api
 - Documentación del proyecto completada
