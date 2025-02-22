@@ -18,5 +18,5 @@ reacts obtenga la imagen y consuma la api
 - API completada
 - Backend completado
 - Frontend completado
-- Se hizo la prueba q consumio la api
+- Se hizo la prueba que consumio la api
 - Documentación del proyecto completada
