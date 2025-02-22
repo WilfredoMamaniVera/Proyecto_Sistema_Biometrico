@@ -6,9 +6,9 @@ Este proyecto implementa un sistema biométrico facial, gestionado utilizando un
 
 ### **Por Hacer**
 - Conectar el frontend y el backend
-
+- ordenar las rutas en el react
 ### **En Progreso**
-*(Actualmente, no hay tareas en progreso)*
+-Hacer pruebas para que la api de laravel consuma en react
 
 ### **Hecho**
 - API completada
