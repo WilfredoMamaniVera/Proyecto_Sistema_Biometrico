@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::create('accesos', function (Blueprint $table) {
             $table->id('id_acceso');
-            $table->unsignedBigInteger('id_usuario');
-            $table->enum('tipo_acceso', ['entrada', 'salida']);
+            $table->unsignedBigInteger('id_persona');
             $table->timestamp('fecha_hora')->useCurrent();
             $table->string('area_acceso', 100);
-            $table->foreign('id_usuario')->references('id_usuario')->on('usuarios')->onDelete('cascade');
+            $table->foreign('id_persona')->references('id')->on('personas')->onDelete('cascade');
         });
     }
 

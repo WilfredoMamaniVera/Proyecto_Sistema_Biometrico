@@ -11,20 +11,18 @@ class AccesoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_usuario' => 'required|exists:usuarios,id_usuario',
-            'tipo_acceso' => 'required|in:entrada,salida',
+            'id_persona'  => 'required|exists:personas,id',
             'area_acceso' => 'required|string|max:100'
         ]);
 
         $acceso = Acceso::create([
-            'id_usuario' => $request->id_usuario,
-            'tipo_acceso' => $request->tipo_acceso,
+            'id_persona'  => $request->id_persona,
             'area_acceso' => $request->area_acceso
         ]);
 
         return response()->json([
             'message' => 'Acceso registrado correctamente',
-            'acceso' => $acceso
+            'acceso'  => $acceso
         ], 201);
     }
 
@@ -54,20 +52,18 @@ class AccesoController extends Controller
         }
 
         $request->validate([
-            'id_usuario' => 'sometimes|required|exists:usuarios,id_usuario',
-            'tipo_acceso' => 'sometimes|required|in:entrada,salida',
+            'id_persona'  => 'sometimes|required|exists:personas,id',
             'area_acceso' => 'sometimes|required|string|max:100'
         ]);
 
         $acceso->update($request->only([
-            'id_usuario',
-            'tipo_acceso',
+            'id_persona',
             'area_acceso'
         ]));
 
         return response()->json([
             'message' => 'Acceso actualizado correctamente',
-            'acceso' => $acceso
+            'acceso'  => $acceso
         ]);
     }
 

@@ -10,13 +10,12 @@ class Acceso extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'id_usuario',
-        'tipo_acceso',
+        'id_persona',
         'area_acceso'
     ];
 
-    public function usuario()
+    public function persona()
     {
-        return $this->belongsTo(Usuario::class, 'id_usuario');
+        return $this->belongsTo(Persona::class, 'id_persona');
     }
 }
