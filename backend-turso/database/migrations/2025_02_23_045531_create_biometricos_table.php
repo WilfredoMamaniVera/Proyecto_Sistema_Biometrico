@@ -11,9 +11,10 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('biometricos', function (Blueprint $table) {
-            $table->id(); // Crea la columna 'id' como PRIMARY KEY autoincrementable
+            $table->id();
             $table->unsignedBigInteger('id_persona');
-            $table->binary('imagen')->nullable();
+            $table->binary('imagen');
+            $table->timestamps();
             $table->foreign('id_persona')->references('id')->on('personas')->onDelete('cascade');
         });
     }

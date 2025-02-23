@@ -15,7 +15,8 @@ class Biometrico extends Model
     // Definimos los campos asignables
     protected $fillable = [
         'id_persona',
-        'imagen'
+        'imagen',
+        'descriptor'
     ];
 
     public $timestamps = false;
