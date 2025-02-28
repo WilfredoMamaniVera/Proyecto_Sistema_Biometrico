@@ -6,6 +6,10 @@ use App\Http\Controllers\AccesoController;
 use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\BiometricoController;
+use App\Http\Controllers\RegistroController;
+use App\Http\Controllers\DepartamentoController;
+use App\Http\Controllers\HorarioController;
+
 
 Route::get('/ping', function () {
     return response()->json(['message' => 'API funcionando']);
@@ -50,3 +54,27 @@ Route::get('/biometricos/{id}', [BiometricoController::class, 'show']);
 Route::put('/biometricos/{id}', [BiometricoController::class, 'update']);
 Route::patch('/biometricos/{id}', [BiometricoController::class, 'update']);
 Route::delete('/biometricos/{id}', [BiometricoController::class, 'destroy']);
+
+// Rutas para registros
+Route::post('/registros', [RegistroController::class, 'store']);
+Route::get('/registros', [RegistroController::class, 'index']);
+Route::get('/registros/{id}', [RegistroController::class, 'show']);
+Route::put('/registros/{id}', [RegistroController::class, 'update']);
+Route::patch('/registros/{id}', [RegistroController::class, 'update']);
+Route::delete('/registros/{id}', [RegistroController::class, 'destroy']);
+
+// Rutas para departamentos
+Route::post('/departamentos', [DepartamentoController::class, 'store']);
+Route::get('/departamentos', [DepartamentoController::class, 'index']);
+Route::get('/departamentos/{id}', [DepartamentoController::class, 'show']);
+Route::put('/departamentos/{id}', [DepartamentoController::class, 'update']);
+Route::patch('/departamentos/{id}', [DepartamentoController::class, 'update']);
+Route::delete('/departamentos/{id}', [DepartamentoController::class, 'destroy']);
+
+// Rutas para horarios
+Route::post('/horarios', [HorarioController::class, 'store']);
+Route::get('/horarios', [HorarioController::class, 'index']);
+Route::get('/horarios/{id}', [HorarioController::class, 'show']);
+Route::put('/horarios/{id}', [HorarioController::class, 'update']);
+Route::patch('/horarios/{id}', [HorarioController::class, 'update']);
+Route::delete('/horarios/{id}', [HorarioController::class, 'destroy']);
