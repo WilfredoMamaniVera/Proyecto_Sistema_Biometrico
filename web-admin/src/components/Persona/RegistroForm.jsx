@@ -11,23 +11,24 @@ const RegistroForm = ({ initialData, onSuccess }) => {
     fecha_nacimiento: '',
     telefono: '',
     correo: '',
-    imagen: null, // Campo para la imagen capturada
+    imagen: null,
+    descriptor: null,
   });
-  const [faceDetectionProgress, setFaceDetectionProgress] = useState(0); // Progreso de detección del rostro
-  const [modelsLoaded, setModelsLoaded] = useState(false); // Estado de carga de modelos de face-api.js
-  const [cameraStream, setCameraStream] = useState(null); // Flujo de la cámara
-  const [isCameraActive, setIsCameraActive] = useState(false); // Estado de la cámara
-  const [capturedImage, setCapturedImage] = useState(null); // Imagen capturada
-  const videoRef = useRef(null); // Referencia al video
-  const canvasRef = useRef(null); // Referencia al canvas para detecciones
+  const [faceDetectionProgress, setFaceDetectionProgress] = useState(0);
+  const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [cameraStream, setCameraStream] = useState(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [capturedImage, setCapturedImage] = useState(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
   const videoWidth = 640;
   const videoHeight = 480;
 
-  // Cargar modelos de face-api.js al montar el componente
+  // Cargar modelos de face-api.js
   useEffect(() => {
     const loadModels = async () => {
-      const uri = '/models'; // Ajusta la ruta según donde estén tus modelos
+      const uri = '/models'; // Ajusta según donde estén tus modelos
       try {
         await Promise.all([
           faceapi.nets.ssdMobilenetv1.loadFromUri(uri),
@@ -37,7 +38,7 @@ const RegistroForm = ({ initialData, onSuccess }) => {
         setModelsLoaded(true);
         console.log('Modelos de face-api.js cargados correctamente');
       } catch (error) {
-        console.error('Error al cargar modelos de face-api.js:', error);
+        console.error('Error al cargar modelos:', error);
         toast.error('Error al cargar modelos de reconocimiento facial');
       }
     };
@@ -55,21 +56,22 @@ const RegistroForm = ({ initialData, onSuccess }) => {
         telefono: initialData.telefono || '',
         correo: initialData.correo || '',
         imagen: null,
+        descriptor: null,
       });
     }
   }, [initialData]);
 
-  // Iniciar la cámara y la detección facial cuando isCameraActive cambie y los modelos estén cargados
+  // Iniciar/detener la cámara y detección facial
   useEffect(() => {
     if (isCameraActive && modelsLoaded) {
       startVideo();
-      const interval = setInterval(detectFace, 100); // Detectar rostros cada 100 ms
+      const interval = setInterval(detectFace, 100);
       return () => {
-        clearInterval(interval); // Limpiar intervalo al desmontar
-        stopVideo(); // Detener la cámara cuando isCameraActive cambie a false
+        clearInterval(interval);
+        stopVideo();
       };
     } else if (!isCameraActive) {
-      stopVideo(); // Asegurarse de detener la cámara si se desactiva
+      stopVideo();
     }
   }, [isCameraActive, modelsLoaded]);
 
@@ -87,41 +89,34 @@ const RegistroForm = ({ initialData, onSuccess }) => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           setCameraStream(stream);
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current.play(); // Reproducir el video cuando los metadatos estén cargados
-          };
-        } else {
-          toast.error('El elemento de video no está listo. Intenta de nuevo.');
-          stream.getTracks().forEach(track => track.stop()); // Detener el flujo si falla
+          videoRef.current.onloadedmetadata = () => videoRef.current.play();
         }
       })
       .catch((error) => {
         console.error('Error al acceder a la cámara:', error);
         toast.error('No se pudo acceder a la cámara. Verifica los permisos o la disponibilidad de la cámara.');
-        setIsCameraActive(false); // Desactivar la cámara si falla
+        setIsCameraActive(false);
       });
   };
 
   // Detener el video
   const stopVideo = () => {
     if (cameraStream) {
-      cameraStream.getTracks().forEach(track => track.stop());
+      cameraStream.getTracks().forEach((track) => track.stop());
       setCameraStream(null);
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
-      }
+      if (videoRef.current) videoRef.current.srcObject = null;
     }
   };
 
   // Función para iniciar la cámara desde el botón
   const handleStartCamera = () => {
     if (!modelsLoaded) {
-      toast.error('Los modelos de reconocimiento facial aún no están cargados. Por favor, espera.');
+      toast.error('Los modelos aún no están cargados. Espera.');
       return;
     }
     setIsCameraActive(true);
-    setCapturedImage(null); // Limpiar imagen capturada previa
-    setFaceDetectionProgress(0); // Reiniciar progreso
+    setCapturedImage(null);
+    setFaceDetectionProgress(0);
   };
 
   // Detectar rostro en el flujo de video
@@ -135,24 +130,28 @@ const RegistroForm = ({ initialData, onSuccess }) => {
       .withFaceLandmarks()
       .withFaceDescriptor();
 
-    const context = canvasRef.current.getContext('2d');
-    context.clearRect(0, 0, videoWidth, videoHeight);
+    if (canvasRef.current) {
+      const context = canvasRef.current.getContext('2d');
+      if (context) {
+        context.clearRect(0, 0, videoWidth, videoHeight);
 
-    if (detections) {
-      const resizedDetections = faceapi.resizeResults([detections], { width: videoWidth, height: videoHeight });
-      faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
-      faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
-      const confidence = detections.detection.score * 100;
-      setFaceDetectionProgress(Math.min(Math.round(confidence), 100));
-    } else {
-      setFaceDetectionProgress(0);
+        if (detections) {
+          const resizedDetections = faceapi.resizeResults([detections], { width: videoWidth, height: videoHeight });
+          faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
+          faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
+          const confidence = detections.detection.score * 100;
+          setFaceDetectionProgress(Math.min(Math.round(confidence), 100));
+        } else {
+          setFaceDetectionProgress(0);
+        }
+      }
     }
   };
 
   // Capturar imagen desde la cámara
-  const captureImage = () => {
+  const captureImage = async () => {
     if (!videoRef.current) {
-      toast.error('El video no está disponible para capturar.');
+      toast.error('El video no está disponible.');
       return;
     }
 
@@ -162,63 +161,77 @@ const RegistroForm = ({ initialData, onSuccess }) => {
     const context = canvas.getContext('2d');
     context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
 
-    canvas.toBlob((blob) => {
-      const file = new File([blob], 'captured_face.jpg', { type: 'image/jpeg' });
-      setFormData({ ...formData, imagen: file });
-      setCapturedImage(canvas.toDataURL('image/jpeg'));
-      setIsCameraActive(false); // Detener la cámara tras capturar
-    }, 'image/jpeg');
+    const imageData = canvas.toDataURL('image/jpeg');
+    setCapturedImage(imageData);
+
+    const img = await faceapi.fetchImage(imageData);
+    const detection = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+    if (detection) {
+      const descriptor = Array.from(detection.descriptor);
+      canvas.toBlob((blob) => {
+        const file = new File([blob], 'captured_face.jpg', { type: 'image/jpeg' });
+        setFormData({ ...formData, imagen: file, descriptor });
+        setIsCameraActive(false);
+      }, 'image/jpeg');
+    } else {
+      toast.error('No se detectó un rostro. Intenta de nuevo.');
+    }
   };
 
   // Manejar el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('nombre', formData.nombre);
-      formDataToSend.append('apellido_paterno', formData.apellido_paterno);
-      formDataToSend.append('apellido_materno', formData.apellido_materno);
-      formDataToSend.append('fecha_nacimiento', formData.fecha_nacimiento);
-      formDataToSend.append('telefono', formData.telefono);
-      formDataToSend.append('correo', formData.correo);
-      if (formData.imagen) {
-        formDataToSend.append('imagen', formData.imagen);
-      }
+      // Preparar datos para /api/personas
+      const personaFormData = new FormData();
+      personaFormData.append('nombre', formData.nombre);
+      personaFormData.append('apellido_paterno', formData.apellido_paterno);
+      personaFormData.append('apellido_materno', formData.apellido_materno);
+      personaFormData.append('fecha_nacimiento', formData.fecha_nacimiento);
+      personaFormData.append('telefono', formData.telefono);
+      personaFormData.append('correo', formData.correo);
 
+      let personaId;
       if (initialData) {
-        await axios.put(
+        // Actualizar persona existente
+        const response = await axios.put(
           `http://localhost:8000/api/personas/${initialData.id}`,
-          formDataToSend,
+          personaFormData,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );
-        if (formData.imagen) {
-          await axios.post(
-            `http://localhost:8000/api/biometricos`,
-            { id_persona: initialData.id, imagen: formData.imagen },
-            { headers: { 'Content-Type': 'multipart/form-data' } }
-          );
-        }
-        toast.success('Persona y biométrico actualizados con éxito');
+        personaId = initialData.id;
       } else {
+        // Registrar nueva persona
         const response = await axios.post(
           `http://localhost:8000/api/personas`,
-          formDataToSend,
+          personaFormData,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );
-        if (formData.imagen) {
-          const personaId = response.data.persona.id;
-          await axios.post(
-            `http://localhost:8000/api/biometricos`,
-            { id_persona: personaId, imagen: formData.imagen },
-            { headers: { 'Content-Type': 'multipart/form-data' } }
-          );
-        }
-        toast.success('Persona y biométrico registrados con éxito');
+        personaId = response.data.persona.id;
       }
+
+      // Si se capturó una imagen y un descriptor, registrar datos biométricos
+      if (formData.imagen && formData.descriptor) {
+        const biometricoFormData = new FormData();
+        biometricoFormData.append('id_persona', personaId);
+        biometricoFormData.append('imagen', formData.imagen);
+        biometricoFormData.append('descriptor', JSON.stringify(formData.descriptor));
+
+        await axios.post(
+          `http://localhost:8000/api/biometricos`,
+          biometricoFormData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+      }
+
+      toast.success(initialData ? 'Persona y biométrico actualizados con éxito' : 'Persona y biométrico registrados con éxito');
       onSuccess();
     } catch (error) {
-      console.error('Error al guardar persona o biométrico:', error);
-      toast.error(error.response?.data?.message || 'Error al guardar la persona o biométrico');
+      console.error('Error al guardar:', error.response?.data || error);
+      const errorMessage = error.response?.data?.errors
+        ? Object.values(error.response.data.errors).flat().join(' ')
+        : error.response?.data?.message || 'Error al guardar';
+      toast.error(errorMessage);
     }
   };
 
@@ -313,18 +326,8 @@ const RegistroForm = ({ initialData, onSuccess }) => {
         {isCameraActive && (
           <div className="mt-2">
             <div className="relative w-[640px] h-[480px] mx-auto">
-              <video
-                ref={videoRef}
-                width={videoWidth}
-                height={videoHeight}
-                className="rounded-md"
-              />
-              <canvas
-                ref={canvasRef}
-                className="absolute top-0 left-0"
-                width={videoWidth}
-                height={videoHeight}
-              />
+              <video ref={videoRef} width={videoWidth} height={videoHeight} className="rounded-md" />
+              <canvas ref={canvasRef} className="absolute top-0 left-0" width={videoWidth} height={videoHeight} />
             </div>
             <button
               type="button"
@@ -378,7 +381,7 @@ const RegistroForm = ({ initialData, onSuccess }) => {
         <button
           type="submit"
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400"
-          disabled={!modelsLoaded || (formData.imagen && faceDetectionProgress === 0)}
+          disabled={!modelsLoaded || (capturedImage && !formData.descriptor)}
         >
           {initialData ? 'Actualizar' : 'Registrar'}
         </button>

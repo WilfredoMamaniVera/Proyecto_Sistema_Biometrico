@@ -54,6 +54,7 @@ Route::get('/biometricos/{id}', [BiometricoController::class, 'show']);
 Route::put('/biometricos/{id}', [BiometricoController::class, 'update']);
 Route::patch('/biometricos/{id}', [BiometricoController::class, 'update']);
 Route::delete('/biometricos/{id}', [BiometricoController::class, 'destroy']);
+Route::post('/auth/face', [BiometricoController::class, 'authenticateFace']);
 
 // Rutas para registros
 Route::post('/registros', [RegistroController::class, 'store']);
