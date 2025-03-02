@@ -11,14 +11,14 @@ class RolController extends Controller
     // Listar todos los roles (GET /api/roles)
     public function index()
     {
-        $roles = Rol::all();
+        $roles = Rol::with('creador')->get();
         return response()->json($roles);
     }
 
     // Mostrar un rol en particular (GET /api/roles/{id})
     public function show($id)
     {
-        $rol = Rol::find($id);
+        $rol = Rol::with('creador')->find($id);
         if (!$rol) {
             return response()->json(['message' => 'Rol no encontrado'], 404);
         }
@@ -29,7 +29,8 @@ class RolController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nombre_de_rol' => 'required|string|unique:roles,nombre_de_rol'
+            'nombre_de_rol' => 'required|string|unique:roles,nombre_de_rol',
+            'id_usuario'    => 'required|exists:usuarios,id_usuario'
         ]);
 
         if ($validator->fails()) {
@@ -37,7 +38,8 @@ class RolController extends Controller
         }
 
         $rol = Rol::create([
-            'nombre_de_rol' => $request->nombre_de_rol
+            'nombre_de_rol' => $request->nombre_de_rol,
+            'id_usuario'    => $request->id_usuario,
         ]);
 
         return response()->json([
@@ -55,14 +57,15 @@ class RolController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'nombre_de_rol' => 'required|string|unique:roles,nombre_de_rol,' . $rol->id_rol
+            'nombre_de_rol' => 'required|string|unique:roles,nombre_de_rol,' . $rol->id_rol,
+            'id_usuario'    => 'sometimes|required|exists:usuarios,id_usuario'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $rol->update($request->only('nombre_de_rol'));
+        $rol->update($request->only('nombre_de_rol', 'id_usuario'));
 
         return response()->json([
             'message' => 'Rol actualizado correctamente',
