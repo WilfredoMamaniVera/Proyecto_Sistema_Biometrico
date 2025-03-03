@@ -14,8 +14,8 @@ class UsuarioController extends Controller
      */
     public function index()
     {
-        // Se incluye la relación con persona para obtener los datos personales asociados
-        $usuarios = Usuario::with('persona')->get();
+        // Se incluyen las relaciones con persona, rol y departamento
+        $usuarios = Usuario::with('persona', 'rol', 'departamento')->get();
         return response()->json($usuarios);
     }
 
@@ -24,7 +24,7 @@ class UsuarioController extends Controller
      */
     public function show($id)
     {
-        $usuario = Usuario::with('persona')->find($id);
+        $usuario = Usuario::with('persona', 'rol', 'departamento')->find($id);
         if (!$usuario) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
         }
@@ -37,9 +37,11 @@ class UsuarioController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nombre_usuario' => 'required|string|max:50|unique:usuarios,nombre_usuario',
-            'contraseña'     => 'required|string|min:6',
-            'id_persona'     => 'required|integer|exists:personas,id'
+            'nombre_usuario'   => 'required|string|max:50|unique:usuarios,nombre_usuario',
+            'contraseña'       => 'required|string|min:6',
+            'id_persona'       => 'required|integer|exists:personas,id',
+            'id_rol'           => 'required|integer|exists:roles,id_rol',
+            'id_departamento'  => 'required|integer|exists:departamentos,id_departamento'
         ]);
 
         if ($validator->fails()) {
@@ -49,9 +51,11 @@ class UsuarioController extends Controller
         DB::beginTransaction();
         try {
             $usuario = Usuario::create([
-                'nombre_usuario' => $request->nombre_usuario,
-                'contraseña'     => bcrypt($request->contraseña),
-                'id_persona'     => $request->id_persona,
+                'nombre_usuario'  => $request->nombre_usuario,
+                'contraseña'      => bcrypt($request->contraseña),
+                'id_persona'      => $request->id_persona,
+                'id_rol'          => $request->id_rol,
+                'id_departamento' => $request->id_departamento
             ]);
 
             DB::commit();
@@ -76,9 +80,11 @@ class UsuarioController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'nombre_usuario' => 'sometimes|required|string|max:50|unique:usuarios,nombre_usuario,' . $usuario->id_usuario,
-            'contraseña'     => 'sometimes|required|string|min:6',
-            'id_persona'     => 'sometimes|required|integer|exists:personas,id'
+            'nombre_usuario'   => 'sometimes|required|string|max:50|unique:usuarios,nombre_usuario,' . $usuario->id_usuario,
+            'contraseña'       => 'sometimes|required|string|min:6',
+            'id_persona'       => 'sometimes|required|integer|exists:personas,id',
+            'id_rol'           => 'sometimes|required|integer|exists:roles,id_rol',
+            'id_departamento'  => 'sometimes|required|integer|exists:departamentos,id_departamento'
         ]);
 
         if ($validator->fails()) {
@@ -95,6 +101,12 @@ class UsuarioController extends Controller
             }
             if ($request->has('id_persona')) {
                 $usuario->id_persona = $request->id_persona;
+            }
+            if ($request->has('id_rol')) {
+                $usuario->id_rol = $request->id_rol;
+            }
+            if ($request->has('id_departamento')) {
+                $usuario->id_departamento = $request->id_departamento;
             }
             $usuario->save();
 

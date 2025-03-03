@@ -11,14 +11,15 @@ class RolController extends Controller
     // Listar todos los roles (GET /api/roles)
     public function index()
     {
-        $roles = Rol::with('creador')->get();
+        // Se eliminó la relación "creador" ya que la FK se trasladó a la tabla usuarios
+        $roles = Rol::all();
         return response()->json($roles);
     }
 
     // Mostrar un rol en particular (GET /api/roles/{id})
     public function show($id)
     {
-        $rol = Rol::with('creador')->find($id);
+        $rol = Rol::find($id);
         if (!$rol) {
             return response()->json(['message' => 'Rol no encontrado'], 404);
         }
@@ -29,8 +30,7 @@ class RolController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nombre_de_rol' => 'required|string|unique:roles,nombre_de_rol',
-            'id_usuario'    => 'required|exists:usuarios,id_usuario'
+            'nombre_de_rol' => 'required|string|unique:roles,nombre_de_rol'
         ]);
 
         if ($validator->fails()) {
@@ -38,8 +38,7 @@ class RolController extends Controller
         }
 
         $rol = Rol::create([
-            'nombre_de_rol' => $request->nombre_de_rol,
-            'id_usuario'    => $request->id_usuario,
+            'nombre_de_rol' => $request->nombre_de_rol
         ]);
 
         return response()->json([
@@ -57,15 +56,14 @@ class RolController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'nombre_de_rol' => 'required|string|unique:roles,nombre_de_rol,' . $rol->id_rol,
-            'id_usuario'    => 'sometimes|required|exists:usuarios,id_usuario'
+            'nombre_de_rol' => 'required|string|unique:roles,nombre_de_rol,' . $rol->id_rol
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $rol->update($request->only('nombre_de_rol', 'id_usuario'));
+        $rol->update($request->only('nombre_de_rol'));
 
         return response()->json([
             'message' => 'Rol actualizado correctamente',

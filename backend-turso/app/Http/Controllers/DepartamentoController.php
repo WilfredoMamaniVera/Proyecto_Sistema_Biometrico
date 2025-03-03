@@ -14,7 +14,8 @@ class DepartamentoController extends Controller
      */
     public function index()
     {
-        $departamentos = Departamento::with('usuario')->get();
+        // Se incluye la relación con "usuarios" para obtener los usuarios asociados a cada departamento
+        $departamentos = Departamento::with('usuarios')->get();
         return response()->json($departamentos);
     }
 
@@ -23,7 +24,7 @@ class DepartamentoController extends Controller
      */
     public function show($id)
     {
-        $departamento = Departamento::with('usuario')->find($id);
+        $departamento = Departamento::with('usuarios')->find($id);
         if (!$departamento) {
             return response()->json(['message' => 'Departamento no encontrado'], 404);
         }
@@ -37,8 +38,7 @@ class DepartamentoController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nombre_departamento'      => 'required|string|max:100|unique:departamentos,nombre_departamento',
-            'descripcion_departamento' => 'nullable|string',
-            'id_usuario'               => 'required|exists:usuarios,id_usuario'
+            'descripcion_departamento' => 'nullable|string'
         ]);
 
         if ($validator->fails()) {
@@ -50,7 +50,6 @@ class DepartamentoController extends Controller
             $departamento = Departamento::create([
                 'nombre_departamento'      => $request->nombre_departamento,
                 'descripcion_departamento' => $request->descripcion_departamento,
-                'id_usuario'               => $request->id_usuario,
             ]);
 
             DB::commit();
@@ -76,8 +75,7 @@ class DepartamentoController extends Controller
 
         $validator = Validator::make($request->all(), [
             'nombre_departamento'      => 'sometimes|required|string|max:100|unique:departamentos,nombre_departamento,' . $departamento->id_departamento,
-            'descripcion_departamento' => 'sometimes|nullable|string',
-            'id_usuario'               => 'sometimes|required|exists:usuarios,id_usuario'
+            'descripcion_departamento' => 'sometimes|nullable|string'
         ]);
 
         if ($validator->fails()) {
@@ -91,9 +89,6 @@ class DepartamentoController extends Controller
             }
             if ($request->has('descripcion_departamento')) {
                 $departamento->descripcion_departamento = $request->descripcion_departamento;
-            }
-            if ($request->has('id_usuario')) {
-                $departamento->id_usuario = $request->id_usuario;
             }
             $departamento->save();
 

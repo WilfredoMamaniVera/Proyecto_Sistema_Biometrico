@@ -15,19 +15,12 @@ class Rol extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'nombre_de_rol',
-        'id_usuario'
+        'nombre_de_rol'
     ];
 
-    public function creador()
-    {
-        return $this->belongsTo(Usuario::class, 'id_usuario');
-    }
-
-    // Relación muchos a muchos con Usuario mediante la tabla pivote usuario_rol
-    // (Si en tu sistema los roles se asignan a varios usuarios)
+    // Relación: Un rol tiene muchos usuarios.
     public function usuarios()
     {
-        return $this->belongsToMany(Usuario::class, 'usuario_rol', 'id_rol', 'id_usuario');
+        return $this->hasMany(Usuario::class, 'id_rol');
     }
 }

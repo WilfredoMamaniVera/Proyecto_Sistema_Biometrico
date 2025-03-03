@@ -15,18 +15,11 @@ class Departamento extends Model
     protected $fillable = [
         'nombre_departamento',
         'descripcion_departamento',
-        'id_usuario'
     ];
 
-    // Relación: cada departamento pertenece a un usuario.
-    public function usuario()
+    // Un departamento tiene muchos usuarios
+    public function usuarios()
     {
-        return $this->belongsTo(Usuario::class, 'id_usuario');
-    }
-
-    // Relación opcional: un departamento puede tener varios horarios.
-    public function horarios()
-    {
-        return $this->hasMany(Horario::class, 'id_departamento');
+        return $this->hasMany(Usuario::class, 'id_departamento');
     }
 }

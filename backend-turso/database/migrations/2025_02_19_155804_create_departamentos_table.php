@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('roles', function (Blueprint $table) {
-            //
+        Schema::create('departamentos', function (Blueprint $table) {
+            $table->id('id_departamento');
+            $table->string('nombre_departamento', 100)->unique();
+            $table->text('descripcion_departamento')->nullable();
         });
     }
 
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('roles', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('departamentos');
     }
 };

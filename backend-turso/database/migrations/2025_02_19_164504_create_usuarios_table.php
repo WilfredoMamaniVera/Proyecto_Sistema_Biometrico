@@ -15,7 +15,11 @@ return new class extends Migration {
             $table->string('nombre_usuario', 50)->unique();
             $table->string('contraseña');
             $table->unsignedBigInteger('id_persona');
+            $table->unsignedBigInteger('id_rol');
+            $table->unsignedBigInteger('id_departamento');
             $table->foreign('id_persona')->references('id')->on('personas')->onDelete('cascade');
+            $table->foreign('id_rol')->references('id_rol')->on('roles')->onDelete('cascade');
+            $table->foreign('id_departamento')->references('id_departamento')->on('departamentos')->onDelete('cascade');
         });
     }
 
