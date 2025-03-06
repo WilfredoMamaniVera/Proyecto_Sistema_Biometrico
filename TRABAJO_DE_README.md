@@ -1,5 +1,5 @@
-# Proyecto de Inteligencia Artificial: SISTEMA BIOMETRICO
-## 📌 Materia: Sistemas de Información III  
+# Proyecto: SISTEMA BIOMETRICO
+## 📌 Materia: Sistema de Información III  
 **Integrantes:**  
 - Mario Terrazas Parada  
 - Juan Rubén Heredia  
